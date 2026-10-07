@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BruinSpace
+
+A Swiss Army knife room booking tool for UCLA students. View real-time study room availability across five UCLA Library locations (Powell Library, the Charles E. Young Research Library, the Louise M. Darling Biomedical Library, the Science and Engineering Library, and the Powell Media Lab), filter by floor/capacity, and jump straight to booking.
+
+## Features
+
+- **Real-time availability**: fetches live data from the UCLA Library reservation system
+- **Card view**: room cards showing available time blocks, longest consecutive slot, and capacity
+- **Grid view**: timeline grid showing 30-minute slot availability across all rooms
+- **Smart filters**: filter by floor, minimum capacity, or available-only rooms
+- **Direct booking links**: click any available slot to open the UCLA Library booking page
+- **Auto-refresh**: refreshes every 2 minutes to stay current
+- **Date navigation**: browse availability for any date
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Architecture
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `app/api/availability/route.ts`: API proxy to the UCLA Library SpringShare availability endpoint
+- `app/lib/rooms.ts`: static room metadata (IDs, names, floors, capacities)
+- `app/components/BookingDashboard.tsx`: main dashboard with date navigation, filters, view toggle
+- `app/components/TimeGrid.tsx`: grid view with per-room timeline
+- `app/components/RoomCards.tsx`: card view with availability blocks
+- `app/components/QuickStats.tsx`: summary statistics bar
 
-## Learn More
+## Room Data
 
-To learn more about Next.js, take a look at the following resources:
+| Library                              | Spaces | Groups                                                        |
+| ------------------------------------- | ------ | -------------------------------------------------------------- |
+| Powell Library                        | 6      | Group Study Rooms                                               |
+| Charles E. Young Research Library     | 33     | Group Study Rooms, Collaboration Pods                           |
+| Louise M. Darling Biomedical Library  | 22     | Main Floor Study Room, Collaboration Hub, Presentation Space, Study Commons |
+| Science and Engineering Library       | 3      | Group Study Rooms (Boelter Hall and the Geology building)       |
+| Powell Media Lab                      | 4      | Study Rooms                                                      |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Note on Booking Identity
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The UCLA Library API does **not** expose who booked a room. The API response only contains:
 
-## Deploy on Vercel
+- Time slots with a className marking them unavailable, or no className for available slots
+- A bookings array that is always empty for unauthenticated requests
+- No patron names, emails, or identifiers are returned
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+This is by design, the system (SpringShare LibCal) protects user privacy. There is no public endpoint to see who booked a given room.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Tech Stack
+
+- Next.js 16 (App Router)
+- React 19
+- Tailwind CSS 4
+- TypeScript
